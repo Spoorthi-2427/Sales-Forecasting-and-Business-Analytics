@@ -1,0 +1,23 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtual environment
+venv/
+.venv/
+
+# Environment variables and passwords
+.env
+.env.*
+!.env.example
+
+# Flask files
+instance/
+*.db
+
+# IDE files
+.vscode/
+.idea/
+
+# Temporary files
+*.log

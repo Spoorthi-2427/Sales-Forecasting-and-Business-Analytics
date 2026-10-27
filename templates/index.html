@@ -1,0 +1,850 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Analytics | Dashboard</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #7961dc;
+            --primary-dark: #6048bf;
+            --light-purple: #f1edff;
+            --background: #f8f7fd;
+            --text: #292542;
+            --muted: #8b88a3;
+            --border: #eeeaf6;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--background);
+            color: var(--text);
+            font-family: "DM Sans", Arial, sans-serif;
+        }
+
+        h1, h2, h3 {
+            font-family: "Outfit", sans-serif;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            width: 245px;
+            background: #fff;
+            border-right: 1px solid var(--border);
+            padding: 30px 18px;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            flex-shrink: 0;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 12px;
+            margin-bottom: 45px;
+            font-size: 21px;
+            font-weight: 800;
+            color: var(--primary);
+            font-family: "Outfit", sans-serif;
+        }
+
+        .brand-icon {
+            background: var(--primary);
+            color: white;
+            border-radius: 12px;
+            padding: 10px;
+        }
+
+        .menu-label {
+            font-size: 11px;
+            color: #aaa5bd;
+            letter-spacing: 2px;
+            margin: 0 12px 18px;
+            font-weight: 700;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 14px 15px;
+            margin-bottom: 9px;
+            text-decoration: none;
+            color: #77738d;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .nav-link:hover {
+            background: var(--light-purple);
+            color: var(--primary);
+        }
+
+        .nav-link.active {
+            background: var(--light-purple);
+            color: var(--primary);
+        }
+
+        .sidebar-bottom {
+            margin-top: 70px;
+            padding: 18px;
+            background: #f7f4ff;
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .sidebar-bottom p {
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        /* MAIN CONTENT */
+
+        .main {
+            flex: 1;
+            min-width: 0;
+            padding: 30px 38px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            gap: 15px;
+        }
+
+        .topbar h2 {
+            margin: 0;
+            font-size: 25px;
+        }
+
+        .topbar p {
+            color: var(--muted);
+            font-size: 13px;
+            margin: 6px 0 0;
+        }
+
+        .tag {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            padding: 10px 16px;
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* WELCOME BANNER */
+
+        .welcome {
+            background: linear-gradient(110deg, #7961dc, #aa91ee);
+            border-radius: 22px;
+            padding: 35px;
+            color: white;
+            margin-bottom: 28px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome::after {
+            content: "✦";
+            position: absolute;
+            font-size: 180px;
+            right: 40px;
+            top: -55px;
+            opacity: 0.15;
+        }
+
+        .welcome h1 {
+            font-size: 29px;
+            margin: 0 0 10px;
+        }
+
+        .welcome p {
+            font-size: 14px;
+            line-height: 1.8;
+            max-width: 550px;
+            opacity: 0.95;
+        }
+
+        .primary-button {
+            display: inline-block;
+            background: white;
+            color: var(--primary-dark);
+            padding: 13px 22px;
+            border-radius: 11px;
+            font-weight: 700;
+            font-size: 13px;
+            text-decoration: none;
+            margin-top: 12px;
+            transition: 0.2s;
+        }
+
+        .primary-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px #4b329944;
+        }
+
+        /* CARDS */
+
+        .section-heading {
+            font-size: 20px;
+            margin: 30px 0 18px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 19px;
+            padding: 25px;
+            box-shadow: 0 5px 22px rgba(55, 39, 105, 0.035);
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .stat-icon {
+            display: inline-flex;
+            background: var(--light-purple);
+            padding: 11px;
+            border-radius: 12px;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+
+        .stat-value {
+            font-family: "Outfit", sans-serif;
+            font-size: 29px;
+            font-weight: 700;
+            margin: 0;
+            overflow-wrap: anywhere;
+        }
+
+        .stat-footer {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 10px;
+        }
+
+        .chart-card {
+            margin-top: 22px;
+        }
+
+        .card-title {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .card-subtitle {
+            font-size: 13px;
+            color: var(--muted);
+            margin: 8px 0 22px;
+            line-height: 1.7;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 330px;
+            width: 100%;
+        }
+
+        /* FORECAST SECTION */
+
+        .forecast-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 22px;
+        }
+
+        .forecast-value {
+            font-family: "Outfit", sans-serif;
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 20px 0 10px;
+            overflow-wrap: anywhere;
+        }
+
+        .forecast-range {
+            background: var(--light-purple);
+            border-radius: 14px;
+            padding: 20px;
+            margin-top: 22px;
+        }
+
+        .forecast-range h3 {
+            font-size: 16px;
+            margin-top: 0;
+        }
+
+        .forecast-range h2 {
+            color: var(--primary-dark);
+            overflow-wrap: anywhere;
+        }
+
+        .note {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .accuracy-box {
+            background: #f8f6ff;
+            border-radius: 12px;
+            padding: 17px;
+            margin-bottom: 15px;
+        }
+
+        .accuracy-box span {
+            display: block;
+            color: var(--muted);
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        .accuracy-box strong {
+            color: var(--primary-dark);
+            font-size: 23px;
+        }
+
+        /* TABLE */
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            min-width: 620px;
+        }
+
+        th {
+            text-align: left;
+            background: #f4f0ff;
+            color: var(--primary-dark);
+            font-size: 12px;
+            padding: 16px;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 15px 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        tbody tr:hover {
+            background: #faf8ff;
+        }
+
+        .download-button {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .download-button:hover {
+            background: var(--primary-dark);
+        }
+
+        .limitations {
+            padding-left: 20px;
+            color: #69657f;
+            font-size: 13px;
+            line-height: 2.1;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 35px 10px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        @media (max-width: 1000px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .main {
+                padding: 24px;
+            }
+
+            .stats-grid {
+                gap: 12px;
+            }
+        }
+
+        @media (max-width: 760px) {
+            .layout {
+                display: block;
+            }
+
+            .sidebar {
+                position: static;
+                height: auto;
+                width: 100%;
+                padding: 14px;
+            }
+
+            .brand {
+                margin-bottom: 12px;
+            }
+
+            .menu-label, .sidebar-bottom {
+                display: none;
+            }
+
+            .nav-link {
+                display: inline-block;
+                margin: 3px;
+            }
+
+            .main {
+                padding: 18px;
+            }
+
+            .stats-grid, .forecast-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .welcome {
+                padding: 25px;
+            }
+
+            .welcome h1 {
+                font-size: 24px;
+            }
+
+            .topbar {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+        <div class="brand">
+            <span class="brand-icon">✦</span>
+            SalesBloom
+        </div>
+
+        <div class="menu-label">WORKSPACE</div>
+
+        <a href="{{ url_for('home') }}" class="nav-link active">
+            ◈ &nbsp; Dashboard
+        </a>
+
+        <a href="{{ url_for('upload_page') }}" class="nav-link">
+            ✧ &nbsp; Analyze My Data
+        </a>
+
+        <a href="#forecast" class="nav-link">
+            ◷ &nbsp; Sales Forecast
+        </a>
+
+        <a href="#comparison" class="nav-link">
+            ▤ &nbsp; Model Comparison
+        </a>
+
+        <div class="sidebar-bottom">
+            <div style="font-size:28px;">✦</div>
+            <strong>Smart Analytics</strong>
+            <p>Turn your sales data into meaningful business insights.</p>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+
+    <main class="main">
+
+        <div class="topbar">
+            <div>
+                <h2>Dashboard Overview ✨</h2>
+                <p>Understand your business performance at a glance.</p>
+            </div>
+
+            <span class="tag">Historical Data · 2014–2017</span>
+        </div>
+
+        <!-- WELCOME -->
+
+        <section class="welcome">
+            <h1>Welcome to SalesBloom ✦</h1>
+            <p>
+                Your intelligent space for sales analytics,
+                forecasting and business insights.
+                Explore historical trends or analyze your own data.
+            </p>
+
+            <a href="{{ url_for('upload_page') }}"
+               class="primary-button">
+                Analyze Your Sales Data →
+            </a>
+        </section>
+
+        <!-- STATS -->
+
+        <h2 class="section-heading">Business Overview</h2>
+
+        <div class="stats-grid">
+
+            <div class="card">
+                <div class="stat-icon">💜</div>
+                <div class="stat-label">Total Sales</div>
+                <h2 class="stat-value">{{ total_sales }}</h2>
+                <div class="stat-footer">Historical sales revenue</div>
+            </div>
+
+            <div class="card">
+                <div class="stat-icon">🌷</div>
+                <div class="stat-label">Total Profit</div>
+                <h2 class="stat-value">{{ total_profit }}</h2>
+                <div class="stat-footer">Overall business profit</div>
+            </div>
+
+            <div class="card">
+                <div class="stat-icon">🛍️</div>
+                <div class="stat-label">Total Orders</div>
+                <h2 class="stat-value">{{ total_orders }}</h2>
+                <div class="stat-footer">Unique orders processed</div>
+            </div>
+
+        </div>
+
+        <!-- MONTHLY SALES -->
+
+        <section class="card chart-card">
+            <h2 class="card-title">Monthly Sales Trend</h2>
+            <p class="card-subtitle">
+                Track historical monthly sales performance from 2014 to 2017.
+            </p>
+
+            <div class="chart-container">
+                <canvas id="salesChart"></canvas>
+            </div>
+        </section>
+
+        <!-- COMPARISON CHART -->
+
+        <section class="card chart-card" id="comparison">
+            <h2 class="card-title">Forecasting Model Comparison</h2>
+            <p class="card-subtitle">
+                Actual sales vs Moving Average vs Linear Regression during 2017.
+            </p>
+
+            <div class="chart-container">
+                <canvas id="comparisonChart"></canvas>
+            </div>
+        </section>
+
+        <!-- FORECAST TABLE -->
+
+        <section class="card chart-card">
+            <h2 class="card-title">Monthly Forecast Comparison</h2>
+            <p class="card-subtitle">
+                Compare actual sales and predictions for January–December 2017.
+            </p>
+
+            <a href="{{ url_for('download_forecast') }}"
+               class="download-button">
+                ↓ Download Forecast Results (CSV)
+            </a>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Actual Sales</th>
+                            <th>Moving Average</th>
+                            <th>Linear Regression</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for i in range(test_months | length) %}
+                        <tr>
+                            <td>{{ test_months[i] }}</td>
+                            <td>{{ "%.2f"|format(actual_sales[i]) }}</td>
+
+                            <td>
+                                {% if ma_predictions[i] is not none %}
+                                    {{ "%.2f"|format(ma_predictions[i]) }}
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if lr_predictions[i] is not none %}
+                                    {{ "%.2f"|format(lr_predictions[i]) }}
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- FORECAST + ACCURACY -->
+
+        <div class="forecast-grid" id="forecast">
+
+            <section class="card">
+                <h2 class="card-title">Next Month Sales Forecast ✨</h2>
+                <p class="card-subtitle">
+                    January 2018 · 3-Month Moving Average
+                </p>
+
+                <div class="forecast-value">
+                    {{ next_month_forecast }}
+                </div>
+
+                <p class="note">
+                    Based on actual sales from October,
+                    November and December 2017.
+                </p>
+
+                <div class="forecast-range">
+                    <h3>Approximate Forecast Range</h3>
+                    <h2>
+                        {{ forecast_lower }} – {{ forecast_upper }}
+                    </h2>
+
+                    <p class="note">
+                        Estimated using the model's historical
+                        mean absolute error. This is not a
+                        statistically guaranteed confidence interval.
+                    </p>
+                </div>
+
+                <p class="note">
+                    This is a demonstration forecast for January 2018,
+                    not a forecast for the current month.
+                </p>
+            </section>
+
+            <section class="card">
+                <h2 class="card-title">Model Accuracy</h2>
+                <p class="card-subtitle">
+                    Compare forecasting errors using Mean Absolute Error (MAE).
+                </p>
+
+                <div class="accuracy-box">
+                    <span>Moving Average MAE</span>
+                    <strong>{{ ma_mae }}</strong>
+                </div>
+
+                <div class="accuracy-box">
+                    <span>Linear Regression MAE</span>
+                    <strong>{{ lr_mae }}</strong>
+                </div>
+
+                <p class="note">
+                    Lower MAE means lower average prediction error.
+                </p>
+
+                <p class="note">
+                    Moving Average uses earlier actual months,
+                    including months within 2017, while Linear
+                    Regression was trained on data through 2016.
+                    Their evaluation setups are different.
+                </p>
+            </section>
+
+        </div>
+
+        <!-- LIMITATIONS -->
+
+        <section class="card chart-card">
+            <h2 class="card-title">Forecasting Limitations</h2>
+
+            <ul class="limitations">
+                <li>Historical dataset covers 2014–2017.</li>
+                <li>External factors such as holidays, promotions and market changes are not included.</li>
+                <li>Moving Average may respond slowly to sudden sales changes.</li>
+                <li>Linear Regression assumes a linear relationship between time and sales.</li>
+                <li>Actual sales may differ significantly from predicted sales.</li>
+                <li>The forecast range is based on historical errors and does not guarantee future results.</li>
+            </ul>
+        </section>
+
+        <div class="footer">
+            Made with 💜 · Predictive Sales Forecasting and Business Analytics System
+        </div>
+
+    </main>
+</div>
+
+<!-- CHARTS -->
+
+<script>
+    const months = {{ months | tojson }};
+    const salesValues = {{ sales_values | tojson }};
+
+    const testMonths = {{ test_months | tojson }};
+    const actualSales = {{ actual_sales | tojson }};
+    const maPredictions = {{ ma_predictions | tojson }};
+    const lrPredictions = {{ lr_predictions | tojson }};
+
+    Chart.defaults.font.family = "DM Sans";
+    Chart.defaults.color = "#8b88a3";
+
+    new Chart(document.getElementById("salesChart"), {
+        type: "line",
+        data: {
+            labels: months,
+            datasets: [{
+                label: "Monthly Sales",
+                data: salesValues,
+                borderColor: "#7961dc",
+                backgroundColor: "rgba(121,97,220,0.10)",
+                borderWidth: 3,
+                pointRadius: 2,
+                pointHoverRadius: 6,
+                tension: 0.35,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                intersect: false,
+                mode: "index"
+            },
+            plugins: {
+                legend: {
+                    position: "top"
+                }
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: { maxTicksLimit: 12 }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: { color: "#f1edfa" },
+                    title: {
+                        display: true,
+                        text: "Sales"
+                    }
+                }
+            }
+        }
+    });
+
+    new Chart(document.getElementById("comparisonChart"), {
+        type: "line",
+        data: {
+            labels: testMonths,
+            datasets: [
+                {
+                    label: "Actual Sales",
+                    data: actualSales,
+                    borderColor: "#7961dc",
+                    backgroundColor: "#7961dc",
+                    borderWidth: 3,
+                    tension: 0.3
+                },
+                {
+                    label: "Moving Average",
+                    data: maPredictions,
+                    borderColor: "#f0a6b8",
+                    backgroundColor: "#f0a6b8",
+                    borderWidth: 2,
+                    borderDash: [6, 4],
+                    tension: 0.3
+                },
+                {
+                    label: "Linear Regression",
+                    data: lrPredictions,
+                    borderColor: "#45b9ac",
+                    backgroundColor: "#45b9ac",
+                    borderWidth: 2,
+                    borderDash: [3, 3],
+                    tension: 0.3
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                intersect: false,
+                mode: "index"
+            },
+            plugins: {
+                legend: {
+                    position: "top"
+                }
+            },
+            scales: {
+                x: {
+                    grid: { display: false }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: { color: "#f1edfa" },
+                    title: {
+                        display: true,
+                        text: "Monthly Sales"
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

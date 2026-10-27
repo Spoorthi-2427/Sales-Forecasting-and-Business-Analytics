@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Analysis Results</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6fb;
+            margin: 0;
+        }
+
+        header {
+            background: #182848;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stats .card {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        a {
+            color: #2563eb;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Sales Analysis Results</h1>
+        <p>{{ filename }}</p>
+    </header>
+
+    <div class="container">
+
+        <div class="stats">
+            <div class="card">
+                <h3>Total Sales</h3>
+                <h2>₹{{ "{:,.2f}".format(total_sales) }}</h2>
+            </div>
+
+            <div class="card">
+                <h3>Valid Sales Records</h3>
+                <h2>{{ total_records }}</h2>
+            </div>
+
+            <div class="card">
+                <h3>Months Analyzed</h3>
+                <h2>{{ months|length }}</h2>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Monthly Sales Trend</h2>
+            <canvas id="salesChart"></canvas>
+        </div>
+
+        <div class="card">
+            <h2>Monthly Sales Summary</h2>
+
+            <table style="width:100%; border-collapse:collapse;">
+                <tr>
+                    <th style="padding:12px; text-align:left;">Month</th>
+                    <th style="padding:12px; text-align:right;">Sales</th>
+                </tr>
+
+                {% for i in range(months|length) %}
+                <tr>
+                    <td style="padding:12px; border-top:1px solid #ddd;">
+                        {{ months[i] }}
+                    </td>
+                    <td style="padding:12px; border-top:1px solid #ddd; text-align:right;">
+                        ₹{{ "{:,.2f}".format(sales_values[i]) }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <a href="{{ url_for('upload_page') }}">← Analyze Another File</a>
+    </div>
+
+    <script>
+        const months = {{ months | tojson }};
+        const salesValues = {{ sales_values | tojson }};
+
+        new Chart(document.getElementById("salesChart"), {
+            type: "line",
+            data: {
+                labels: months,
+                datasets: [{
+                    label: "Monthly Sales",
+                    data: salesValues,
+                    borderColor: "#2563eb",
+                    backgroundColor: "rgba(37,99,235,0.1)",
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

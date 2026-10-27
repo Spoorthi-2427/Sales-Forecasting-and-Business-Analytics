@@ -1,0 +1,863 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Analyze My Data | SalesBloom</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #7961dc;
+            --primary-dark: #6048bf;
+            --light-purple: #f1edff;
+            --background: #f8f7fd;
+            --text: #292542;
+            --muted: #8b88a3;
+            --border: #eeeaf6;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            background: var(--background);
+            color: var(--text);
+            font-family: "DM Sans", Arial, sans-serif;
+        }
+
+        h1, h2, h3 {
+            font-family: "Outfit", sans-serif;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            width: 245px;
+            background: white;
+            border-right: 1px solid var(--border);
+            padding: 30px 18px;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            flex-shrink: 0;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 12px;
+            margin-bottom: 45px;
+            font-size: 21px;
+            font-weight: 800;
+            color: var(--primary);
+            font-family: "Outfit", sans-serif;
+        }
+
+        .brand-icon {
+            background: var(--primary);
+            color: white;
+            border-radius: 12px;
+            padding: 10px;
+        }
+
+        .menu-label {
+            font-size: 11px;
+            color: #aaa5bd;
+            letter-spacing: 2px;
+            margin: 0 12px 18px;
+            font-weight: 700;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 14px 15px;
+            margin-bottom: 9px;
+            text-decoration: none;
+            color: #77738d;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: var(--light-purple);
+            color: var(--primary);
+        }
+
+        .sidebar-bottom {
+            margin-top: 70px;
+            padding: 18px;
+            background: #f7f4ff;
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .sidebar-bottom p {
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        /* MAIN CONTENT */
+
+        .main {
+            flex: 1;
+            min-width: 0;
+            padding: 30px 38px;
+            max-width: 1500px;
+            margin: 0 auto;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 28px;
+        }
+
+        .topbar h2 {
+            margin: 0;
+            font-size: 25px;
+        }
+
+        .topbar p {
+            color: var(--muted);
+            font-size: 13px;
+            margin: 6px 0 0;
+        }
+
+        .tag {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            padding: 10px 16px;
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* WELCOME BANNER */
+
+        .welcome {
+            background: linear-gradient(110deg, #7961dc, #aa91ee);
+            border-radius: 22px;
+            padding: 32px;
+            color: white;
+            margin-bottom: 28px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome::after {
+            content: "✦";
+            position: absolute;
+            font-size: 160px;
+            right: 35px;
+            top: -45px;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        .welcome h1 {
+            margin: 0 0 10px;
+            font-size: 28px;
+        }
+
+        .welcome p {
+            font-size: 14px;
+            line-height: 1.8;
+            opacity: 0.95;
+            max-width: 550px;
+        }
+
+        /* CARDS */
+
+        .card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 19px;
+            padding: 28px;
+            box-shadow: 0 5px 22px rgba(55, 39, 105, 0.035);
+            margin-bottom: 22px;
+            min-width: 0;
+        }
+
+        .card h2 {
+            margin: 0 0 8px;
+            font-size: 21px;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.7;
+            margin: 0 0 22px;
+        }
+
+        .two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+            align-items: start;
+        }
+
+        .two-columns .card {
+            height: 100%;
+        }
+
+        .card-icon {
+            display: inline-flex;
+            background: var(--light-purple);
+            padding: 12px;
+            border-radius: 13px;
+            font-size: 23px;
+            margin-bottom: 16px;
+        }
+
+        /* FILE UPLOAD */
+
+        .upload-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 11px;
+            padding: 35px 20px;
+            border: 2px dashed #b6a5f2;
+            border-radius: 16px;
+            background: #faf8ff;
+            cursor: pointer;
+            text-align: center;
+            transition: 0.25s;
+            min-height: 190px;
+        }
+
+        .upload-box:hover,
+        .upload-box:focus-visible {
+            background: var(--light-purple);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            outline: none;
+        }
+
+        .upload-icon {
+            font-size: 40px;
+        }
+
+        .upload-box strong {
+            color: var(--primary-dark);
+            font-size: 16px;
+        }
+
+        .upload-box span {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .file-name {
+            color: var(--primary) !important;
+            font-weight: 700;
+            overflow-wrap: anywhere;
+        }
+
+        .file-input {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            overflow: hidden;
+        }
+
+        /* FORM */
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: #615b7c;
+            margin: 15px 0 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #e7e1f3;
+            border-radius: 11px;
+            background: #fcfbff;
+            color: var(--text);
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(121, 97, 220, 0.1);
+        }
+
+        /* BUTTONS */
+
+        .primary-button {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 23px;
+            border: none;
+            border-radius: 11px;
+            background: var(--primary);
+            color: white;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+        .primary-button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .full-width {
+            width: 100%;
+            margin-top: 18px;
+        }
+
+        .delete-button {
+            border: none;
+            border-radius: 9px;
+            padding: 9px 15px;
+            background: #fff0f3;
+            color: #d94869;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .delete-button:hover {
+            background: #ffe0e8;
+        }
+
+        /* SALES SUMMARY */
+
+        .summary-card {
+            background: linear-gradient(120deg, #f5f0ff, #fff7fc);
+            border-radius: 15px;
+            padding: 23px;
+            margin: 20px 0;
+        }
+
+        .summary-card span {
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .summary-card h2 {
+            color: var(--primary-dark);
+            font-size: 32px;
+            margin: 10px 0 0;
+            overflow-wrap: anywhere;
+        }
+
+        /* TABLE */
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 480px;
+        }
+
+        th {
+            background: #f4f0ff;
+            color: var(--primary-dark);
+            padding: 15px;
+            font-size: 12px;
+            text-align: left;
+        }
+
+        td {
+            padding: 15px;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tbody tr:hover {
+            background: #faf8ff;
+        }
+
+        /* CHART */
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 330px;
+        }
+
+        #sales-records {
+            scroll-margin-top: 25px;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: var(--muted);
+            padding: 25px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        @media (max-width: 1050px) {
+            .two-columns {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 760px) {
+            .layout {
+                display: block;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: static;
+                padding: 15px;
+            }
+
+            .brand {
+                margin-bottom: 12px;
+            }
+
+            .menu-label,
+            .sidebar-bottom {
+                display: none;
+            }
+
+            .nav-link {
+                display: inline-block;
+                margin: 3px;
+            }
+
+            .main {
+                padding: 18px;
+            }
+
+            .topbar {
+                flex-wrap: wrap;
+            }
+
+            .welcome {
+                padding: 25px;
+            }
+
+            .welcome h1 {
+                font-size: 23px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            <span class="brand-icon">✦</span>
+            SalesBloom
+        </div>
+
+        <div class="menu-label">WORKSPACE</div>
+
+        <a href="{{ url_for('home') }}" class="nav-link">
+            ◈ &nbsp; Dashboard
+        </a>
+
+        <a href="{{ url_for('upload_page') }}" class="nav-link active">
+            ✧ &nbsp; Analyze My Data
+        </a>
+
+        <a href="#sales-records" class="nav-link">
+            ▤ &nbsp; Sales Records
+        </a>
+
+        <a href="#sales-trend" class="nav-link">
+            ◷ &nbsp; Monthly Trends
+        </a>
+
+        <div class="sidebar-bottom">
+            <div style="font-size:28px;">🌷</div>
+            <strong>Your Data, Your Insights</strong>
+            <p>
+                Every sales record tells a story.
+                Let's make sense of yours.
+            </p>
+        </div>
+
+    </aside>
+
+    <!-- MAIN CONTENT -->
+
+    <main class="main">
+
+        <div class="topbar">
+            <div>
+                <h2>Analyze My Data ✨</h2>
+                <p>
+                    Upload your sales file or enter sales manually.
+                </p>
+            </div>
+
+            <span class="tag">My Workspace</span>
+        </div>
+
+        <!-- WELCOME -->
+
+        <section class="welcome">
+            <h1>Your sales, beautifully organized ✦</h1>
+
+            <p>
+                Bring your own sales data into SalesBloom.
+                Upload a spreadsheet, track individual sales,
+                and explore your business performance.
+            </p>
+        </section>
+
+        <!-- FILE UPLOAD + MANUAL ENTRY -->
+
+        <div class="two-columns">
+
+            <!-- FILE UPLOAD -->
+
+            <section class="card">
+
+                <div class="card-icon">📁</div>
+
+                <h2>Upload Sales File</h2>
+
+                <p class="subtitle">
+                    Upload a CSV or Excel spreadsheet to
+                    generate your sales analysis.
+                    Your file should contain
+                    <strong>Date</strong> and
+                    <strong>Sales</strong> columns.
+                </p>
+
+                <form action="/analyze-file"
+                      method="POST"
+                      enctype="multipart/form-data">
+
+                    <label for="salesFile"
+                           class="upload-box"
+                           tabindex="0"
+                           onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); document.getElementById('salesFile').click(); }">
+
+                        <span class="upload-icon">☁️</span>
+
+                        <strong>Click to Choose a File</strong>
+
+                        <span>CSV or Excel (.xlsx)</span>
+
+                        <span id="fileName" class="file-name">
+                            No file selected
+                        </span>
+
+                    </label>
+
+                    <input type="file"
+                           id="salesFile"
+                           class="file-input"
+                           name="sales_file"
+                           accept=".csv,.xlsx"
+                           onchange="showFileName()"
+                           required>
+
+                    <button type="submit"
+                            class="primary-button full-width">
+                        ✨ Analyze File
+                    </button>
+
+                </form>
+
+            </section>
+
+            <!-- MANUAL ENTRY -->
+
+            <section class="card">
+
+                <div class="card-icon">✍️</div>
+
+                <h2>Enter Sales Manually</h2>
+
+                <p class="subtitle">
+                    Add individual sales records and track
+                    your monthly business performance.
+                </p>
+
+                <form action="/add-sale" method="POST">
+
+                    <label class="form-label" for="saleDate">
+                        Sale Date
+                    </label>
+
+                    <input type="date"
+                           id="saleDate"
+                           name="sale_date"
+                           class="form-input"
+                           required>
+
+                    <label class="form-label" for="saleAmount">
+                        Sales Amount (₹)
+                    </label>
+
+                    <input type="number"
+                           id="saleAmount"
+                           name="sales_amount"
+                           class="form-input"
+                           step="0.01"
+                           min="0"
+                           placeholder="Enter sales amount"
+                           required>
+
+                    <button type="submit"
+                            class="primary-button full-width">
+                        + Add Sale
+                    </button>
+
+                </form>
+
+            </section>
+
+        </div>
+
+        <!-- MANUAL SALES RECORDS -->
+
+        <section class="card" id="sales-records">
+
+            <h2>Your Sales Records 🌷</h2>
+
+            <p class="subtitle">
+                View and manage all the sales you've entered manually.
+            </p>
+
+            <div class="summary-card">
+                <span>Total Sales</span>
+
+                <h2>
+                    ₹{{ "{:,.2f}".format(total_user_sales) }}
+                </h2>
+            </div>
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Sales Amount</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for record in sales_records %}
+
+                        <tr>
+
+                            <td>{{ record[1] }}</td>
+
+                            <td>
+                                ₹{{ "{:,.2f}".format(record[2]) }}
+                            </td>
+
+                            <td>
+                                <form action="{{ url_for('delete_sale', sale_id=record[0]) }}"
+                                      method="POST"
+                                      onsubmit="return confirm('Are you sure you want to delete this sale?');">
+
+                                    <button type="submit"
+                                            class="delete-button">
+                                        Delete
+                                    </button>
+
+                                </form>
+                            </td>
+
+                        </tr>
+
+                        {% else %}
+
+                        <tr>
+                            <td colspan="3" class="empty-message">
+                                No sales records yet.
+                                Add your first sale above! ✨
+                            </td>
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+        <!-- MONTHLY SALES CHART -->
+
+        <section class="card" id="sales-trend">
+
+            <h2>Your Monthly Sales Trend 📈</h2>
+
+            <p class="subtitle">
+                Explore how your manually entered sales
+                change from month to month.
+            </p>
+
+            {% if user_months %}
+
+            <div class="chart-container">
+                <canvas id="manualSalesChart"></canvas>
+            </div>
+
+            {% else %}
+
+            <p class="empty-message">
+                Your monthly sales graph will appear
+                once you add some sales records.
+            </p>
+
+            {% endif %}
+
+        </section>
+
+        <div class="footer">
+            Made with 💜 · SalesBloom Business Analytics
+        </div>
+
+    </main>
+
+</div>
+
+<script>
+    // DISPLAY SELECTED FILE NAME
+
+    function showFileName() {
+        const fileInput = document.getElementById("salesFile");
+        const fileName = document.getElementById("fileName");
+
+        if (fileInput.files.length > 0) {
+            fileName.textContent =
+                "Selected: " + fileInput.files[0].name;
+        } else {
+            fileName.textContent = "No file selected";
+        }
+    }
+
+    // MONTHLY SALES CHART
+
+    {% if user_months %}
+
+    const userMonths = {{ user_months | tojson }};
+    const userSalesValues = {{ user_sales_values | tojson }};
+
+    Chart.defaults.font.family = "DM Sans";
+    Chart.defaults.color = "#8b88a3";
+
+    new Chart(document.getElementById("manualSalesChart"), {
+        type: "line",
+
+        data: {
+            labels: userMonths,
+
+            datasets: [{
+                label: "Monthly Sales",
+                data: userSalesValues,
+                borderColor: "#7961dc",
+                backgroundColor: "rgba(121,97,220,0.10)",
+                borderWidth: 3,
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                fill: true,
+                tension: 0.35
+            }]
+        },
+
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+
+            plugins: {
+                legend: {
+                    position: "top"
+                }
+            },
+
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    }
+                },
+
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: "#f1edfa"
+                    }
+                }
+            }
+        }
+    });
+
+    {% endif %}
+</script>
+
+</body>
+</html>
